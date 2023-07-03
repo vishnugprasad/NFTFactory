@@ -1,0 +1,16 @@
+.table {
+    
+
+}
+
+.table > div[class = "table-responsive"]{
+    height: 40vh !important;
+}
+
+.App{
+    overflow: hidden;
+}
+
+body{
+    overflow: hidden;
+}
