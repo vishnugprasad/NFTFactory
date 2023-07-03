@@ -1,14 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-
 //this will converts ether into wei
 
 const toWei = (num) => {
   // console.log(":::::::::::::::::",ethers);
   return ethers.utils.parseEther(num.toString());
 };
-const fromWei = (num) => ethers.formatEther(num);
+const fromWei = (num) => ethers.utils.formatEther(num);
 
 describe("NFTFactory", async function () {
   let deployer, addr1, addr2, nft, nftFactory, NFT, NFTFactory;
@@ -29,8 +28,8 @@ describe("NFTFactory", async function () {
     it("Should track name and symbol of the nft collection", async function () {
       // This test expects the owner variable stored in the contract to be equal
       // to our Signer's owner.
-      const nftName = "DApp NFT";
-      const nftSymbol = "DAPP";
+      const nftName = "MY NFT";
+      const nftSymbol = "GPNFT";
       expect(await nft.name()).to.equal(nftName);
       expect(await nft.symbol()).to.equal(nftSymbol);
     });
@@ -66,7 +65,7 @@ describe("NFTFactory", async function () {
       // addr1 approves nft Factory to spend nft
 
       nftAddress = nft.address;
-      nftFactoryAddress =  nftFactory.address;
+      nftFactoryAddress = nftFactory.address;
       await nft.connect(addr1).setApprovalForAll(nftFactoryAddress, true);
     });
 
@@ -103,76 +102,77 @@ describe("NFTFactory", async function () {
     beforeEach(async function () {
       nftAddress = nft.address;
       nftFactoryAddress = nftFactory.address;
-      
+
       // addr1 mints an nft
-      await nft.connect(addr1).createToken(URI); 
-     
+      await nft.connect(addr1).createToken(URI);
+
       // addr1 approves nft Factory to spend tokens
       await nft.connect(addr1).setApprovalForAll(nftFactoryAddress, true);
-      
+
       // addr1 makes their nft a nft Factory item.
       await nftFactory.connect(addr1).makeItem(nftAddress, 1, toWei(price));
-    
     });
 
     it("Should update item as sold, pay seller, transfer NFT to buyer, charge fees and emit a Bought event", async function () {
-      console.log("sellerInitalETHBal===================", addr1);
-      const sellerInitalEthBal =  await ethers.provider.getBalance(addr1);
-      console.log("sellerInitalETHBal===================",sellerInitalEthBal);
-      const feeAccountInitialEthBal =  await ethers.provider.getBalance(deployer); 
-      console.log("feeAccountInitialEthBal===================",feeAccountInitialEthBal);     
+      const sellerInitalEthBal = await ethers.provider.getBalance(
+        addr1.address
+      );
+
+      const feeAccountInitialEthBal = await ethers.provider.getBalance(
+        deployer.address
+      );
+
       totalPriceInWei = await nftFactory.getTotalPrice(1);
       // addr 2 purchases item.
       await expect(
         nftFactory.connect(addr2).purchaseItem(1, { value: totalPriceInWei })
       )
         .to.emit(nftFactory, "Bought")
-        .withArgs(
-          1,
-          nftAddress,
-          1,
-          toWei(price),
-          addr1.address,
-          addr2.address
-        );
-      const sellerFinalEthBal =  await ethers.provider.getBalance(addr1);
-      const feeAccountFinalEthBal =  await ethers.provider.getBalance(deployer);
+        .withArgs(1, nftAddress, 1, toWei(price), addr1.address, addr2.address);
+      const sellerFinalEthBal = await ethers.provider.getBalance(addr1.address);
+      const feeAccountFinalEthBal = await ethers.provider.getBalance(
+        deployer.address
+      );
       // Item should be marked as sold
       expect((await nftFactory.items(1)).sold).to.equal(true);
       // Seller should receive payment for the price of the NFT sold.
-      expect(+fromWei(sellerFinalEthBal)).to.equal(
-        +price + +fromWei(sellerInitalEthBal)
+      expect((+fromWei(sellerFinalEthBal)).toFixed(11)).to.equal(
+        (+price + +fromWei(sellerInitalEthBal)).toFixed(11)
       );
       // feeAccount should receive fee
-      expect(+fromWei(feeAccountFinalEthBal)).to.equal(
-        +fee + +fromWei(feeAccountInitialEthBal)
+      expect((+fromWei(feeAccountFinalEthBal)).toFixed(11)).to.equal(
+        (+fee + +fromWei(feeAccountInitialEthBal)).toFixed(11)
       );
+      
       // The buyer should now own the nft
       expect(await nft.ownerOf(1)).to.equal(addr2.address);
     });
 
     it("Should fail for invalid item ids, sold items and when not enough ether is paid", async function () {
-        // fails for invalid item ids
-        await expect(
-          nftFactory.connect(addr2).purchaseItem(2, {value: totalPriceInWei})
-        ).to.be.revertedWith("item doesn't exist");
-        await expect(
-            nftFactory.connect(addr2).purchaseItem(0, {value: totalPriceInWei})
-        ).to.be.revertedWith("item doesn't exist");
-        // Fails when not enough ether is paid with the transaction. 
-        // In this instance, fails when buyer only sends enough ether to cover the price of the nft
-        // not the additional market fee.
-        await expect(
-            nftFactory.connect(addr2).purchaseItem(1, {value: toWei(price)})
-        ).to.be.revertedWith("not enough ether to cover item price and market fee"); 
-        // addr2 purchases item 1
-        await nftFactory.connect(addr2).purchaseItem(1, {value: totalPriceInWei})
-        // addr3 tries purchasing item 1 after its been sold 
-        
-        
-        await expect(
-            nftFactory.connect(deployer).purchaseItem(1, {value: totalPriceInWei})
-        ).to.be.revertedWith("item already sold");
-      });
+      // fails for invalid item ids
+      await expect(
+        nftFactory.connect(addr2).purchaseItem(2, { value: totalPriceInWei })
+      ).to.be.revertedWith("item doesn't exist");
+      await expect(
+        nftFactory.connect(addr2).purchaseItem(0, { value: totalPriceInWei })
+      ).to.be.revertedWith("item doesn't exist");
+      // Fails when not enough ether is paid with the transaction.
+      // In this instance, fails when buyer only sends enough ether to cover the price of the nft
+      // not the additional market fee.
+      await expect(
+        nftFactory.connect(addr2).purchaseItem(1, { value: toWei(price) })
+      ).to.be.revertedWith(
+        "not enough ether to cover item price and market fee"
+      );
+      // addr2 purchases item 1
+      await nftFactory
+        .connect(addr2)
+        .purchaseItem(1, { value: totalPriceInWei });
+      // addr3 tries purchasing item 1 after its been sold
+
+      await expect(
+        nftFactory.connect(deployer).purchaseItem(1, { value: totalPriceInWei })
+      ).to.be.revertedWith("item already sold");
+    });
   });
 });

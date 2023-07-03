@@ -5,7 +5,7 @@ import "./App.css"
 
 const GET_TRANSACTIONS = gql`
   query GetTransactions {
-    boughts {
+    boughts(orderBy: tokenId){
       tokenId
       blockNumber
       blockTimestamp
@@ -15,7 +15,7 @@ const GET_TRANSACTIONS = gql`
       seller
     }
 
-    offereds {
+    offereds(orderBy: tokenId){
       tokenId
       blockNumber
       blockTimestamp
