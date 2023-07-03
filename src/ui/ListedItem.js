@@ -71,6 +71,7 @@ export default function ListedItems({ nftFactory, nft, account }) {
     setListedItems(listedItems)
     setSoldItems(soldItems)
   }
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     
     loadListedItems()

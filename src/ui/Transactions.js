@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import { useQuery, gql } from "@apollo/client";
 import Table from "react-bootstrap/Table";
 import "./App.css"

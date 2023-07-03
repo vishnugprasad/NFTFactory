@@ -3,8 +3,6 @@ import { ethers } from "ethers";
 import axios from "axios"
 // import { formatEther, JsonRpcProvider, Contract, BrowserProvider } from "ethers";
 import { Row, Col, Card } from 'react-bootstrap'
-import NFTFactoryAbi from './contractsData/NFTFactory.json'
-import NFTFactoryAddress from './contractsData/NFTFactory-address.json'
 
 
 export default function Purchases({ nftFactory, nft, account }) {
@@ -34,9 +32,7 @@ export default function Purchases({ nftFactory, nft, account }) {
     //   }
     // console.log("+++++++++++++ printing items++++++++++++++++++++",bought, offered);
 
-    const filter = {
-        boughtBy: account,
-      };
+    
       
     //   const results = await nftFactory.getNFTs("getNFTs",filter);
     //Fetch metadata of each nft and add that to listedItem object.
@@ -66,6 +62,8 @@ export default function Purchases({ nftFactory, nft, account }) {
     setLoading(false)
     setPurchases(purchases)
   }
+
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     loadPurchasedItems()
   }, [])

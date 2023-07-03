@@ -43,7 +43,7 @@ const Home = ({ nftFactory, nft }) => {
       await (await nftFactory.purchaseItem(item.itemId, { value: item.totalPrice })).wait()
       loadNFTFactoryItems()
     }
-  
+    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
       loadNFTFactoryItems()
     }, [])
