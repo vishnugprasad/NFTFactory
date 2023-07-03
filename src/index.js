@@ -3,7 +3,7 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  gql,
+  
 } from "@apollo/client";
 import "bootstrap/dist/css/bootstrap.css";
 import App from "./ui/App";

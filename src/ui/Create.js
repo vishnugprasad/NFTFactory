@@ -2,9 +2,7 @@ import { useState } from 'react'
 // import {  parseEther, BrowserProvider, Contract} from "ethers"
 import { ethers } from "ethers"
 import { Row, Form, Button } from 'react-bootstrap'
-import { create as ipfsHttpClient } from 'ipfs-http-client'
-import NFTAbi from './contractsData/NFT.json'
-import NFTAddress from './contractsData/NFT-address.json'
+
 // const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 import {uploadJSONToIPFS, uploadFileToIPFS} from "../connectIPFS"
 
